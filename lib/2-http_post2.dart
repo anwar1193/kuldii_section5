@@ -1,0 +1,95 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as myhttp;
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  TextEditingController usernameC = TextEditingController();
+  TextEditingController addressC = TextEditingController();
+
+  String hasilResponse = "Belum ada datas";
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("HTTP POST"),
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(20),
+        children: [
+          TextField(
+            controller: usernameC,
+            autocorrect: false,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+                border: OutlineInputBorder(), labelText: "Username"),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+            controller: addressC,
+            autocorrect: false,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+                border: OutlineInputBorder(), labelText: "Address"),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                var myResponse = await myhttp.post(
+                    Uri.parse(
+                        "https://anwar-news.000webhostapp.com/api/mahasiswa/store"),
+                    body: {
+                      "username": usernameC.text,
+                      "address": addressC.text
+                    });
+
+                Map<String, dynamic> data =
+                    jsonDecode(myResponse.body) as Map<String, dynamic>;
+
+                setState(() {
+                  hasilResponse =
+                      "${data["data"][0]["username"]} - ${data["data"][0]["address"]}";
+                });
+              },
+              child: Text("Submit")),
+          SizedBox(
+            height: 50,
+          ),
+          Divider(
+            color: Colors.blue,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(hasilResponse)
+        ],
+      ),
+    );
+  }
+}
